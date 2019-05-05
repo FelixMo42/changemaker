@@ -1,7 +1,6 @@
 import React from 'react'
-import { StyleSheet, Text, View, TouchableHighlight } from 'react-native'
+import { StyleSheet, View, TouchableHighlight } from 'react-native'
 import { Camera, Permissions } from 'expo'
-import { Ionicons } from '@expo/vector-icons';
 
 export default class App extends React.Component {
   state = {
@@ -15,6 +14,8 @@ export default class App extends React.Component {
   }
 
   render() {
+    console.log("app rendering")
+
     const { hasCameraPermission } = this.state
 
     if (hasCameraPermission) {
@@ -42,7 +43,7 @@ export default class App extends React.Component {
   }
 
   onClicked() {
-
+    console.log("click")
   }
 }
 

@@ -1,6 +1,17 @@
 import React from 'react'
 import { StyleSheet, View, TouchableHighlight, Text, Button } from 'react-native'
 import { Camera, Permissions } from 'expo'
+import enviroment from './enviroment'
+import firebase from 'firebase'
+
+firebase.initializeApp({  
+  apiKey: enviroment['FIREBASE_API_KEY'],
+  authDomain: enviroment['FIREBASE_AUTH_DOMAIN'],
+  //databaseURL: enviroment['FIREBASE_DATABASE_URL'],
+  projectId: enviroment['FIREBASE_PROJECT_ID']
+  //storageBucket: enviroment['FIREBASE_STORAGE_BUCKET'],
+  //messagingSenderId: enviroment['FIREBASE_MESSAGING_SENDER_ID']
+})
 
 export default class App extends React.Component {
   state = {
@@ -93,9 +104,48 @@ export default class App extends React.Component {
   }
 
   async takePicture() {
+    let photo = await this.camera.takePictureAsync()
+
     this.goto("info")
 
-    //let photo = await this.camera.takePictureAsync()
+    let body = JSON.stringify({
+      requests: [
+        {
+          features: [
+            { type: "LABEL_DETECTION", maxResults: 10 },
+            { type: "LANDMARK_DETECTION", maxResults: 5 },
+            { type: "FACE_DETECTION", maxResults: 5 },
+            { type: "LOGO_DETECTION", maxResults: 5 },
+            { type: "TEXT_DETECTION", maxResults: 5 },
+            { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
+            { type: "SAFE_SEARCH_DETECTION", maxResults: 5 },
+            { type: "IMAGE_PROPERTIES", maxResults: 5 },
+            { type: "CROP_HINTS", maxResults: 5 },
+            { type: "WEB_DETECTION", maxResults: 5 }
+          ],
+          image: {
+            source: {
+              imageUri: image
+            }
+          }
+        }
+      ]
+    })
+
+    let response = await fetch(
+      "https://vision.googleapis.com/v1/images:annotate?key=" +
+        environment["GOOGLE_CLOUD_VISION_API_KEY"],
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        },
+        method: "POST",
+        body: body
+      }
+    )
+
+    console.log(response)
   }
 }
 

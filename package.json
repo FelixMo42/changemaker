@@ -9,6 +9,7 @@
   "dependencies": {
     "@google-cloud/vision": "^0.25.0",
     "expo": "^32.0.0",
+    "firebase": "^6.0.2",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
     "react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera.git"

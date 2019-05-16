@@ -5,13 +5,39 @@ import enviroment from './enviroment'
 import firebase from 'firebase'
 
 firebase.initializeApp({  
-  apiKey: enviroment['FIREBASE_API_KEY'],
-  authDomain: enviroment['FIREBASE_AUTH_DOMAIN'],
+  apiKey: enviroment.staging['FIREBASE_API_KEY'],
+  authDomain: enviroment.staging['FIREBASE_AUTH_DOMAIN'],
   //databaseURL: enviroment['FIREBASE_DATABASE_URL'],
-  projectId: enviroment['FIREBASE_PROJECT_ID']
-  //storageBucket: enviroment['FIREBASE_STORAGE_BUCKET'],
+  projectId: enviroment.staging['FIREBASE_PROJECT_ID'],
+  storageBucket: enviroment.staging['FIREBASE_STORAGE_BUCKET'],
   //messagingSenderId: enviroment['FIREBASE_MESSAGING_SENDER_ID']
 })
+
+async function uploadImageAsync(uri) {  
+  const blob = await new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      resolve(xhr.response);
+    };
+    xhr.onerror = function(e) {
+      console.log(e);
+      reject(new TypeError('Network request failed'));
+    };
+    xhr.responseType = 'blob';
+    xhr.open('GET', uri, true);
+    xhr.send(null);
+  });
+
+  const ref = firebase
+    .storage()
+    .ref()
+    .child("0");
+  const snapshot = await ref.put(blob);
+
+  blob.close();
+
+  return await snapshot.ref.getDownloadURL();
+}
 
 export default class App extends React.Component {
   state = {
@@ -106,7 +132,11 @@ export default class App extends React.Component {
   async takePicture() {
     let photo = await this.camera.takePictureAsync()
 
-    this.goto("info")
+    console.log(photo)
+
+    uploadImageAsync(photo.uri)
+
+    /*this.goto("info")
 
     let body = JSON.stringify({
       requests: [
@@ -145,7 +175,7 @@ export default class App extends React.Component {
       }
     )
 
-    console.log(response)
+    console.log(response)*/
   }
 }
 

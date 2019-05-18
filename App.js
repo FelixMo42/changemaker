@@ -131,27 +131,24 @@ export default class App extends React.Component {
 
   async takePicture() {
     let photo = await this.camera.takePictureAsync()
+    var image = await uploadImageAsync(photo.uri)
 
-    console.log(photo)
-
-    uploadImageAsync(photo.uri)
-
-    /*this.goto("info")
+    this.goto("info")
 
     let body = JSON.stringify({
       requests: [
         {
           features: [
             { type: "LABEL_DETECTION", maxResults: 10 },
-            { type: "LANDMARK_DETECTION", maxResults: 5 },
+            { type: "LANDMARK_DETECTION", maxResults: 0 },
             { type: "FACE_DETECTION", maxResults: 5 },
             { type: "LOGO_DETECTION", maxResults: 5 },
             { type: "TEXT_DETECTION", maxResults: 5 },
             { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
-            { type: "SAFE_SEARCH_DETECTION", maxResults: 5 },
-            { type: "IMAGE_PROPERTIES", maxResults: 5 },
+            { type: "SAFE_SEARCH_DETECTION", maxResults: 0 },
+            { type: "IMAGE_PROPERTIES", maxResults: 0 },
             { type: "CROP_HINTS", maxResults: 5 },
-            { type: "WEB_DETECTION", maxResults: 5 }
+            { type: "WEB_DETECTION", maxResults: 0 }
           ],
           image: {
             source: {
@@ -164,7 +161,7 @@ export default class App extends React.Component {
 
     let response = await fetch(
       "https://vision.googleapis.com/v1/images:annotate?key=" +
-        environment["GOOGLE_CLOUD_VISION_API_KEY"],
+        enviroment.staging["GOOGLE_CLOUD_VISION_API_KEY"],
       {
         headers: {
           Accept: "application/json",
@@ -175,7 +172,7 @@ export default class App extends React.Component {
       }
     )
 
-    console.log(response)*/
+    console.log(response)
   }
 }
 

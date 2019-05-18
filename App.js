@@ -1,6 +1,16 @@
 import React from 'react'
-import { StyleSheet, View, TouchableHighlight, Text, Button } from 'react-native'
-import { Camera, Permissions } from 'expo'
+import {
+  StyleSheet,
+  View,
+  TouchableHighlight,
+  Text,
+  Button,
+  ScrollView
+} from 'react-native'
+import {
+  Camera,
+  Permissions
+} from 'expo'
 import enviroment from './enviroment'
 import firebase from 'firebase'
 
@@ -44,6 +54,7 @@ export default class App extends React.Component {
     hasCameraPermission: null,
     page: "main",
     type: Camera.Constants.Type.back,
+    labels: []
   }
 
   async componentDidMount() {
@@ -96,16 +107,14 @@ export default class App extends React.Component {
 
   renderInfoPage() {
     return (
-      <View style={[styles.container, {padding: 10, paddingTop: 25}]}>
-        <View style={styles.infoBox}>
-          <Text>name: Plastic</Text>
-          <Text>how to dispose</Text>
-        </View>
-        <View style={styles.infoBox}>
-          <Text>name: Plastic</Text>
-          <Text>how to dispose</Text>
-        </View>
-      </View>
+      <ScrollView style={[styles.container, {padding: 10, paddingTop: 25}]}>
+        { this.state.labels.map(item =>
+          <View key={ item.name } style={styles.infoBox}>
+            <Text>name: { item.name } ({ item.certainty })</Text>
+            <Text>how to dispose</Text>
+          </View>
+        ) }
+      </ScrollView>
     )
   }
 
@@ -131,24 +140,25 @@ export default class App extends React.Component {
 
   async takePicture() {
     let photo = await this.camera.takePictureAsync()
-    var image = await uploadImageAsync(photo.uri)
 
     this.goto("info")
+
+    var image = await uploadImageAsync(photo.uri)
 
     let body = JSON.stringify({
       requests: [
         {
           features: [
             { type: "LABEL_DETECTION", maxResults: 10 },
-            { type: "LANDMARK_DETECTION", maxResults: 0 },
-            { type: "FACE_DETECTION", maxResults: 5 },
-            { type: "LOGO_DETECTION", maxResults: 5 },
-            { type: "TEXT_DETECTION", maxResults: 5 },
-            { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
-            { type: "SAFE_SEARCH_DETECTION", maxResults: 0 },
-            { type: "IMAGE_PROPERTIES", maxResults: 0 },
-            { type: "CROP_HINTS", maxResults: 5 },
-            { type: "WEB_DETECTION", maxResults: 0 }
+            //{ type: "LANDMARK_DETECTION", maxResults: 5 },
+            //{ type: "FACE_DETECTION", maxResults: 5 },
+            //{ type: "LOGO_DETECTION", maxResults: 0 },
+            //{ type: "TEXT_DETECTION", maxResults: 5 },
+            //{ type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
+            //{ type: "SAFE_SEARCH_DETECTION", maxResults: 0 },
+            //{ type: "IMAGE_PROPERTIES", maxResults: 0 },
+            //{ type: "CROP_HINTS", maxResults: 5 },
+            //{ type: "WEB_DETECTION", maxResults: 0 }
           ],
           image: {
             source: {
@@ -171,8 +181,22 @@ export default class App extends React.Component {
         body: body
       }
     )
+    
+    let json = await response.json()
+    let data = json.responses[0]
 
-    console.log(response)
+    var labels = []
+    for (let label of data.labelAnnotations) {
+      labels.push({
+        name: label.description,
+        certainty: label.score
+      })
+    }
+    this.setState({
+      labels: labels
+    })
+
+    //console.log(response)
   }
 }
 
